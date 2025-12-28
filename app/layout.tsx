@@ -16,11 +16,21 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "https://example.com"
+    process.env.NEXT_PUBLIC_SITE_URL || "https://hugmyyoungerselfai.com"
   ),
   title: "Time Hug – Hug My Younger Self.",
   description:
     "Time Hug is a simple, nostalgic photo app to reunite with your younger self. Turn two photos into one hug.",
+  keywords: [
+    "hug my younger self",
+    "time hug",
+    "nostalgic photo app",
+    "photo merge",
+    "hug younger self photo",
+    "reunite with younger self",
+    "childhood photo",
+    "AI photo app"
+  ],
   openGraph: {
     title: "Time Hug – Hug My Younger Self.",
     description:
