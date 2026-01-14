@@ -98,6 +98,18 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  /**
+   * REDIRECT LOGGED-IN USERS AWAY FROM AUTH PAGES
+   *
+   * If: User is logged in AND they're trying to access /login or /signup
+   * Then: Redirect them to /generate (they're already authenticated)
+   */
+  if (user && (pathname === "/login" || pathname === "/signup")) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/generate";
+    return NextResponse.redirect(url);
+  }
+
   // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
   // creating a new response object with NextResponse.next() make sure to:
   // 1. Pass the request in it, like so:
