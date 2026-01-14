@@ -7,6 +7,11 @@ export async function POST(request: Request) {
   await supabase.auth.signOut()
 
   const { origin } = new URL(request.url)
-  return NextResponse.redirect(`${origin}/login`)
+  return NextResponse.redirect(`${origin}/login`, {
+    status: 302,
+  })
 }
+
+// Ensure this route is always dynamic
+export const dynamic = 'force-dynamic'
 

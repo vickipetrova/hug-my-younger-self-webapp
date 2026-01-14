@@ -15,16 +15,19 @@ export async function GET(request: Request) {
       const isLocalEnv = process.env.NODE_ENV === 'development'
       
       if (isLocalEnv) {
-        return NextResponse.redirect(`${origin}${next}`)
+        return NextResponse.redirect(`${origin}${next}`, { status: 302 })
       } else if (forwardedHost) {
-        return NextResponse.redirect(`https://${forwardedHost}${next}`)
+        return NextResponse.redirect(`https://${forwardedHost}${next}`, { status: 302 })
       } else {
-        return NextResponse.redirect(`${origin}${next}`)
+        return NextResponse.redirect(`${origin}${next}`, { status: 302 })
       }
     }
   }
 
   // Return the user to an error page with instructions
-  return NextResponse.redirect(`${origin}/auth/auth-code-error`)
+  return NextResponse.redirect(`${origin}/login?error=auth_callback_error`, { status: 302 })
 }
+
+// Ensure this route is always dynamic
+export const dynamic = 'force-dynamic'
 

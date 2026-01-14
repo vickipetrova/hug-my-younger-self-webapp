@@ -15,6 +15,7 @@ export default function SignupPage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [showConfirmation, setShowConfirmation] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -34,7 +35,7 @@ export default function SignupPage() {
 
     const supabase = createClient()
 
-    const { error: signUpError } = await supabase.auth.signUp({
+    const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -48,20 +49,64 @@ export default function SignupPage() {
       return
     }
 
-    // Sign in immediately after signup (no email confirmation required)
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-
-    if (signInError) {
-      setError(signInError.message)
+    // Check if email confirmation is required
+    // If user.identities is empty, email confirmation is required
+    if (data.user && data.user.identities && data.user.identities.length === 0) {
+      // User already exists
+      setError('An account with this email already exists. Please sign in.')
       setIsLoading(false)
       return
     }
 
+    if (data.user && !data.session) {
+      // Email confirmation required
+      setShowConfirmation(true)
+      setIsLoading(false)
+      return
+    }
+
+    // No email confirmation required - user is already signed in
     router.push('/generate')
     router.refresh()
+  }
+
+  // Show confirmation message after signup
+  if (showConfirmation) {
+    return (
+      <AuthForm
+        title="Check your email"
+        subtitle={`We sent a confirmation link to ${email}`}
+      >
+        <div className="text-center">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+            <svg
+              className="h-6 w-6 text-green-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+              />
+            </svg>
+          </div>
+          <p className="text-gray-600 mb-6">
+            Click the link in your email to confirm your account and start creating hugs.
+          </p>
+          <Link
+            href="/login"
+            className="text-indigo-600 hover:text-indigo-700 font-semibold"
+            tabIndex={0}
+          >
+            Back to Sign In
+          </Link>
+        </div>
+      </AuthForm>
+    )
   }
 
   return (
