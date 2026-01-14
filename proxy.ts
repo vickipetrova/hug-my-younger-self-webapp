@@ -20,7 +20,7 @@ import { updateSession } from "@/lib/supabase/proxy";
  * - The middleware refreshes the session on every request
  * - Without this, users would randomly get logged out!
  */
-export const middleware = async (request: NextRequest) => {
+export const proxy = async (request: NextRequest) => {
   return await updateSession(request);
 };
 
