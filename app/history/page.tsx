@@ -2,11 +2,9 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Image from 'next/image'
 import Link from 'next/link'
-import { GenerateClient } from '@/components/GenerateClient'
+import { HistoryGallery } from '@/components/HistoryGallery'
 
-const DEFAULT_CREDIT_COST = 1
-
-export default async function GeneratePage() {
+export default async function HistoryPage() {
   const supabase = await createClient()
 
   const {
@@ -24,16 +22,14 @@ export default async function GeneratePage() {
     .eq('id', user.id)
     .single()
 
-  // Fetch active template for credit cost
-  const { data: template } = await supabase
-    .from('templates')
-    .select('credit_cost')
-    .eq('slug', 'hug-younger-self')
-    .eq('is_active', true)
-    .single()
+  // Fetch user's generations
+  const { data: generations } = await supabase
+    .from('generations')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
 
   const credits = profile?.credit_balance ?? 0
-  const creditCost = template?.credit_cost ?? DEFAULT_CREDIT_COST
 
   return (
     <div className="min-h-screen bg-[#f6f7f9]">
@@ -65,12 +61,12 @@ export default async function GeneratePage() {
             </div>
 
             <Link
-              href="/history"
+              href="/generate"
               className="text-sm text-gray-600 hover:text-indigo-600 font-medium transition-colors"
               tabIndex={0}
-              aria-label="View generation history"
+              aria-label="Create new generation"
             >
-              History
+              Generate
             </Link>
 
             <SignOutButton />
@@ -79,10 +75,13 @@ export default async function GeneratePage() {
       </header>
 
       {/* Main Content */}
-      <main className="mx-auto max-w-4xl px-6 py-12">
-        <div className="bg-white rounded-3xl shadow-xl ring-1 ring-black/5 p-8 sm:p-12">
-          <GenerateClient userId={user.id} credits={credits} creditCost={creditCost} />
+      <main className="mx-auto max-w-6xl px-6 py-12">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Your Time Hugs</h1>
+          <p className="text-gray-600">Browse your past generations and download your favorites.</p>
         </div>
+
+        <HistoryGallery generations={generations || []} />
       </main>
     </div>
   )
@@ -102,3 +101,4 @@ const SignOutButton = () => {
     </form>
   )
 }
+
