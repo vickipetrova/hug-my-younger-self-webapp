@@ -14,13 +14,21 @@ type GenerationState =
   | { status: 'completed'; outputUrl: string }
   | { status: 'error'; message: string }
 
-type GenerateClientProps = {
-  userId: string
-  credits: number
+type Template = {
+  id: string
+  name: string
+  description: string
   creditCost: number
 }
 
-export const GenerateClient = ({ userId, credits, creditCost }: GenerateClientProps) => {
+type GenerateClientProps = {
+  userId: string
+  credits: number
+  template: Template
+}
+
+export const GenerateClient = ({ userId, credits, template }: GenerateClientProps) => {
+  const { id: templateId, name: templateName, description: templateDescription, creditCost } = template
   const [recentPhoto, setRecentPhoto] = useState<File | null>(null)
   const [youngerPhoto, setYoungerPhoto] = useState<File | null>(null)
   const [state, setState] = useState<GenerationState>({ status: 'idle' })
@@ -65,6 +73,7 @@ export const GenerateClient = ({ userId, credits, creditCost }: GenerateClientPr
         body: JSON.stringify({
           recentImagePath: recentResult.data.path,
           youngerImagePath: youngerResult.data.path,
+          templateId,
         }),
       })
 
@@ -132,10 +141,8 @@ export const GenerateClient = ({ userId, credits, creditCost }: GenerateClientPr
     <div className="flex flex-col gap-8">
       {/* Title and description */}
       <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-3">Hug Your Younger Self</h1>
-        <p className="text-gray-600 max-w-md mx-auto">
-          Upload two photos to create a magical moment where you hug your younger self.
-        </p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-3">{templateName}</h1>
+        <p className="text-gray-600 max-w-md mx-auto">{templateDescription}</p>
       </div>
 
       {/* Upload boxes */}

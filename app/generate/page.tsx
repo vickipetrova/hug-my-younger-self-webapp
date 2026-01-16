@@ -24,16 +24,23 @@ export default async function GeneratePage() {
     .eq('id', user.id)
     .single()
 
-  // Fetch active template for credit cost
+  // Fetch active template
   const { data: template } = await supabase
     .from('templates')
-    .select('credit_cost')
+    .select('id, name, description, credit_cost')
     .eq('slug', 'hug-younger-self')
     .eq('is_active', true)
     .single()
 
   const credits = profile?.credit_balance ?? 0
-  const creditCost = template?.credit_cost ?? DEFAULT_CREDIT_COST
+
+  // Template data with defaults
+  const templateData = {
+    id: template?.id ?? '',
+    name: template?.name ?? 'Hug My Younger Self',
+    description: template?.description ?? 'Upload two photos to create a magical moment where you hug your younger self.',
+    creditCost: template?.credit_cost ?? DEFAULT_CREDIT_COST,
+  }
 
   return (
     <div className="min-h-screen bg-[#f6f7f9]">
@@ -81,7 +88,7 @@ export default async function GeneratePage() {
       {/* Main Content */}
       <main className="mx-auto max-w-4xl px-6 py-12">
         <div className="bg-white rounded-3xl shadow-xl ring-1 ring-black/5 p-8 sm:p-12">
-          <GenerateClient userId={user.id} credits={credits} creditCost={creditCost} />
+          <GenerateClient userId={user.id} credits={credits} template={templateData} />
         </div>
       </main>
     </div>
