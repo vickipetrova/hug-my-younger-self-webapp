@@ -152,7 +152,7 @@ export const ImageUpload = ({
         <input
           ref={inputRef}
           type="file"
-          accept="image/jpeg,image/png,image/webp,image/gif"
+          accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif,.heic,.heif"
           onChange={handleInputChange}
           disabled={disabled}
           className="sr-only"
@@ -210,7 +210,7 @@ export const ImageUpload = ({
             <p className="text-sm font-medium text-gray-700 text-center">
               {isDragging ? 'Drop image here' : 'Drag & drop or click'}
             </p>
-            <p className="text-xs text-gray-500 mt-1">JPEG, PNG, WebP, GIF up to 10MB</p>
+            <p className="text-xs text-gray-500 mt-1">JPEG, PNG, WebP, GIF, HEIC up to 10MB</p>
           </div>
         )}
       </div>

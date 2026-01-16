@@ -5,7 +5,7 @@ VALUES (
   'generations',
   true,
   10485760, -- 10MB max file size
-  ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+  ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif']
 );
 
 -- RLS Policy: Users can upload images to their own folder

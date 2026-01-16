@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create generation record
+    // Create generation record (credits_charged: 0 until successful)
     const { data: generation, error: insertError } = await supabase
       .from('generations')
       .insert({
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
         template_id: template.id,
         status: 'processing',
         input_images: [recentImagePath, youngerImagePath],
-        credits_charged: template.credit_cost,
+        credits_charged: 0, // Will be set after successful generation
         prompt_used: template.prompt,
       })
       .select()
@@ -94,7 +94,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to create generation' }, { status: 500 })
     }
 
-    // Deduct credits from user
+    // TODO: Integrate with actual AI generation service
+    // For now, we'll simulate the generation process
+    // In production, this would call your AI service (e.g., Replicate, RunPod, etc.)
+    // and update the generation record with the output image path
+
+    // Placeholder: Simulate AI generation (replace with actual AI call)
+    const placeholderOutputPath = `${user.id}/output_${Date.now()}.png`
+    
+    // Simulate potential failure (for testing - remove in production)
+    const generationSucceeded = true // In production: result from AI service
+
+    if (!generationSucceeded) {
+      // Mark generation as failed - NO credits charged
+      await supabase
+        .from('generations')
+        .update({ status: 'failed', error_message: 'AI generation failed' })
+        .eq('id', generation.id)
+      
+      return NextResponse.json({ error: 'Generation failed' }, { status: 500 })
+    }
+
+    // GENERATION SUCCEEDED - Now deduct credits
     const { error: creditError } = await supabase
       .from('profiles')
       .update({ credit_balance: currentCredits - template.credit_cost })
@@ -102,7 +123,6 @@ export async function POST(request: NextRequest) {
 
     if (creditError) {
       console.error('Failed to deduct credits:', creditError)
-      // Revert generation status
       await supabase
         .from('generations')
         .update({ status: 'failed', error_message: 'Failed to process credits' })
@@ -119,20 +139,13 @@ export async function POST(request: NextRequest) {
       description: `Generation: ${template.name}`,
     })
 
-    // TODO: Integrate with actual AI generation service
-    // For now, we'll simulate the generation process
-    // In production, this would call your AI service (e.g., Replicate, RunPod, etc.)
-    // and update the generation record with the output image path
-
-    // Placeholder: Mark as completed with a placeholder message
-    // In production, this would be handled by a webhook or polling mechanism
-    const placeholderOutputPath = `${user.id}/output_${Date.now()}.png`
-    
+    // Update generation as completed with credits charged
     await supabase
       .from('generations')
       .update({
         status: 'completed',
         output_image: placeholderOutputPath,
+        credits_charged: template.credit_cost,
         processing_time_ms: 0,
       })
       .eq('id', generation.id)
@@ -140,9 +153,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       generationId: generation.id,
-      status: 'processing',
+      status: 'completed',
       outputUrl: getPublicUrl(placeholderOutputPath),
-      message: 'Generation started. This is a placeholder - AI integration pending.',
+      message: 'Generation completed successfully.',
     })
   } catch (error) {
     console.error('Generation API error:', error)

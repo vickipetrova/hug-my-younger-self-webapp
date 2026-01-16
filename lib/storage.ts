@@ -2,7 +2,14 @@ import { createClient } from '@/lib/supabase/client'
 
 const BUCKET_NAME = 'generations'
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+const ALLOWED_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+  'image/heic',
+  'image/heif',
+]
 
 export type ImageType = 'recent' | 'younger' | 'output'
 
@@ -29,7 +36,7 @@ export const validateFile = (file: File): UploadError | null => {
 
   if (!ALLOWED_TYPES.includes(file.type)) {
     return {
-      message: 'File type not supported. Please use JPEG, PNG, WebP, or GIF.',
+      message: 'File type not supported. Please use JPEG, PNG, WebP, GIF, or HEIC.',
       code: 'INVALID_TYPE',
     }
   }
